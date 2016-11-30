@@ -1,7 +1,7 @@
 # require 'SecureRandom'
 
 class ShortenedUrl < ActiveRecord::Base
-
+  
   belongs_to :submitter,
     class_name: "User",
     primary_key: :id,
