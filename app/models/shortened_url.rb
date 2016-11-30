@@ -1,7 +1,7 @@
 # require 'SecureRandom'
 
 class ShortenedUrl < ActiveRecord::Base
-  
+
   belongs_to :submitter,
     class_name: "User",
     primary_key: :id,
@@ -16,6 +16,15 @@ class ShortenedUrl < ActiveRecord::Base
     -> { distinct },
     through: :visits,
     source: :user
+
+  has_many :taggings,
+    class_name: "Tagging",
+    primary_key: :id,
+    foreign_key: :link_id
+
+  has_many :tags,
+    through: :taggings,
+    source: :tag
 
 
 
