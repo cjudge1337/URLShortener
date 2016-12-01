@@ -1,6 +1,22 @@
 # require 'SecureRandom'
 
 class ShortenedUrl < ActiveRecord::Base
+  validate :valid_length?
+  validate :valid_number_urls?
+
+  def valid_length?
+    if long_url.length >= 1024
+      errors[:long_url] << "cannot be that long"
+    end
+  end
+
+  def valid_number_urls?
+    url_count = users_recent_links(user_id)
+
+    if url_count > 5
+      errors[:base] << "too many urls from this user"
+    end
+  end
 
   belongs_to :submitter,
     class_name: "User",
@@ -27,8 +43,6 @@ class ShortenedUrl < ActiveRecord::Base
     source: :tag
 
 
-
-
   def self.random_code
     short_url = SecureRandom.urlsafe_base64
     while ShortenedUrl.exists?(:short_url => short_url )
@@ -53,5 +67,10 @@ class ShortenedUrl < ActiveRecord::Base
 
   def num_recent_uniques
     self.visits.where(created_at: (10.minutes.ago..Time.now)).select(:user_id).distinct.count
+  end
+
+  def users_recent_links(id)
+    user = User.find_by_id(id)
+    user.submitted_urls.where(created_at: (1.minute.ago..Time.now)).count
   end
 end
