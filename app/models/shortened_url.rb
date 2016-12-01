@@ -28,6 +28,11 @@ class ShortenedUrl < ActiveRecord::Base
     through: :taggings,
     source: :tag
 
+  has_many :votes,
+    class_name: "Vote",
+    primary_key: :id,
+    foreign_key: :link_id
+
   def self.prune
     self.where("created_at < ?", 20.minutes.ago).delete_all
   end

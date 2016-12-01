@@ -16,4 +16,9 @@ class User < ActiveRecord::Base
     through: :visits,
     source: :shortened_url
 
+  has_many :votes,
+    class_name: "Vote",
+    primary_key: :id,
+    foreign_key: :user_id
+    
 end
