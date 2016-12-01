@@ -32,11 +32,13 @@ class ShortenedUrl < ActiveRecord::Base
     self.where("created_at < ?", 20.minutes.ago).delete_all
   end
 
-  def self.random_code
-    short_url = SecureRandom.urlsafe_base64
-    while ShortenedUrl.exists?(:short_url => short_url )
-      short_url = SecureRandom.urlsafe_base64
+  def self.random_code(user)
+    if user.premium
+      short_url = self.premium_random_code
+    else
+      short_url = self.random_code
     end
+
     short_url
   end
 
@@ -44,6 +46,20 @@ class ShortenedUrl < ActiveRecord::Base
     ShortenedUrl.create!(user_id: user.id,
                          long_url: long_url,
                          short_url: self.random_code)
+  end
+
+  def self.premium_random_code
+    words = File.readlines('/Users/appacademy/Desktop/W3D3/URLShortener/lib/assets/dictionary.txt').map(&:chomp)
+    words.sample(2).join("")
+  end
+
+  def self.standard_random_code
+    short_url = SecureRandom.urlsafe_base64
+    while ShortenedUrl.exists?(:short_url => short_url )
+      short_url = SecureRandom.urlsafe_base64
+    end
+
+    short_url
   end
 
   def num_clicks
